@@ -11,12 +11,36 @@ function updateUI() {
     gameHolder.classList.remove('is-invisible')
     gameName.innerHTML = game.getName()
   }
-  // else {
-  //   gameHolder.classList.add('is-invisible')
-  // }
+
+  for(let columns = 0; columns <= 6; columns++){
+    const currentColumn = document.getElementById(`column-${columns}`)
+    if(game.isColumnFull(columns)){
+      currentColumn.classList.add("full")
+    }else{
+      currentColumn.classList.remove("full")
+    }
+  }
+
+  for(let row = 0; row <= 5; row++){
+    for(let column = 0; column <= 6; column++){
+      const square = document.getElementById(`square-${row}-${column}`)
+      square.innerHTML = ""; 
+      const tokenMethod = game.getTokenAt(row, column)
+      
+      if( tokenMethod === 1){
+        const actualToken = document.createElement("div")
+        actualToken.classList.add("token", "black")
+        square.appendChild(actualToken);
+
+      } if(tokenMethod === 2) {
+        const actualToken = document.createElement("div")
+        actualToken.classList.add("token", "red")
+        square.appendChild(actualToken);
+      }
+    }
+  }
 
   let target = document.getElementById('click-targets')
-  console.log(game.currentPlayer)
   if (game.currentPlayer === 2) {
 
     target.classList.add('red')
@@ -64,7 +88,13 @@ window.addEventListener("DOMContentLoaded", e => {
   let clickTarget = document.getElementById('click-targets')
   clickTarget.addEventListener('click', e => {
 
-    game.playInColumn();
+    const targetId = e.target.id;
+    let columnIndex;
+
+    if(targetId.startsWith("column-")){
+      columnIndex = Number.parseInt(targetId[targetId.length - 1]);
+    }
+    game.playInColumn(columnIndex);
     updateUI();
   })
 })
