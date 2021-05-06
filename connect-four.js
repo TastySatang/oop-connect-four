@@ -1,6 +1,9 @@
+import GameJsonDeserializer from './game-json-deserializer.js';
+import GameJsonSerializer from './game-json-serializer.js';
 import Game from './game.js'
 
 let game = undefined;
+
 
 
 function updateUI() {
@@ -12,27 +15,27 @@ function updateUI() {
     gameName.innerHTML = game.getName()
   }
 
-  for(let columns = 0; columns <= 6; columns++){
+  for (let columns = 0; columns <= 6; columns++) {
     const currentColumn = document.getElementById(`column-${columns}`)
-    if(game.isColumnFull(columns)){
+    if (game.isColumnFull(columns)) {
       currentColumn.classList.add("full")
-    }else{
+    } else {
       currentColumn.classList.remove("full")
     }
   }
 
-  for(let row = 0; row <= 5; row++){
-    for(let column = 0; column <= 6; column++){
+  for (let row = 0; row <= 5; row++) {
+    for (let column = 0; column <= 6; column++) {
       const square = document.getElementById(`square-${row}-${column}`)
-      square.innerHTML = ""; 
+      square.innerHTML = "";
       const tokenMethod = game.getTokenAt(row, column)
-      
-      if( tokenMethod === 1){
+
+      if (tokenMethod === 1) {
         const actualToken = document.createElement("div")
         actualToken.classList.add("token", "black")
         square.appendChild(actualToken);
 
-      } if(tokenMethod === 2) {
+      } if (tokenMethod === 2) {
         const actualToken = document.createElement("div")
         actualToken.classList.add("token", "red")
         square.appendChild(actualToken);
@@ -42,17 +45,11 @@ function updateUI() {
 
   let target = document.getElementById('click-targets')
   if (game.currentPlayer === 2) {
-
     target.classList.add('red')
     target.classList.remove('black');
-    console.log(`i'm working`)
-
-
   } else {
-
     target.classList.add('black')
     target.classList.remove('red');
-    console.log(`i'm working`)
 
   }
 }
@@ -86,15 +83,30 @@ window.addEventListener("DOMContentLoaded", e => {
   })
 
   let clickTarget = document.getElementById('click-targets')
+
   clickTarget.addEventListener('click', e => {
+    if (e.target.classList.contains('full')) return;
 
     const targetId = e.target.id;
     let columnIndex;
 
-    if(targetId.startsWith("column-")){
+    if (targetId.startsWith("column-")) {
       columnIndex = Number.parseInt(targetId[targetId.length - 1]);
     }
+
     game.playInColumn(columnIndex);
     updateUI();
+    let serializer = new GameJsonSerializer(game);
+    let json = serializer.serialize();
+    window.localStorage.setItem('save-data', json);
   })
+
+  const json = window.localStorage.getItem('save-data');
+  if (json) {
+
+    const deserialzer = new GameJsonDeserializer(json);
+    game = deserialzer.deserialize();
+    console.log(game);
+    updateUI();
+  }
 })
